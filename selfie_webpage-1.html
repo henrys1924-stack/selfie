@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Who’s Using My Phone? 😂</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;text-align:center;background:#111;color:#fff;padding:24px}
+    .card{max-width:520px;margin:auto;background:#1d1d1d;padding:24px;border-radius:20px}
+    video{width:100%;border-radius:16px;background:#000;display:none}
+    canvas{display:none}
+    button{font-size:18px;padding:14px 22px;border:0;border-radius:12px;background:#fff;color:#111;margin:8px;cursor:pointer}
+    #status{min-height:28px;margin:14px 0;color:#ccc}
+    #photo{max-width:100%;border-radius:16px;display:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>😂 Who’s Using My Phone?</h1>
+    <p>Tap below to take a selfie.</p>
+    <button id="start">📸 Take Selfie</button>
+    <video id="video" autoplay playsinline></video>
+    <button id="capture" style="display:none">Take Photo</button>
+    <canvas id="canvas"></canvas>
+    <img id="photo" alt="Captured selfie">
+    <div id="status"></div>
+  </div>
+
+<script>
+const start = document.getElementById('start');
+const capture = document.getElementById('capture');
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const photo = document.getElementById('photo');
+const status = document.getElementById('status');
+
+let stream;
+
+start.onclick = async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false
+    });
+    video.srcObject = stream;
+    video.style.display = "block";
+    capture.style.display = "inline-block";
+    start.style.display = "none";
+    status.textContent = "Camera is ready. Tap Take Photo.";
+  } catch (err) {
+    status.textContent = "Camera permission was not granted.";
+  }
+};
+
+capture.onclick = () => {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  photo.src = canvas.toDataURL('image/jpeg', 0.9);
+  photo.style.display = "block";
+  status.textContent = "Photo captured on this device.";
+  if (stream) stream.getTracks().forEach(track => track.stop());
+  video.style.display = "none";
+  capture.style.display = "none";
+};
+</script>
+</body>
+</html>
